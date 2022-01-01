@@ -1,15 +1,16 @@
 import { Fragment } from "react/cjs/react.production.min";
 import MeetUpDetails from "../../components/meetups/MeetupDetails";
+import {MongoClient, ObjectId} from 'mongodb';
 
 
-function MeetUpDetail() {
+function MeetUpDetail(props) {
     return (
         <Fragment>
             <MeetUpDetails 
-                img = "https://tripsteri.fi/wp-content/uploads/2020/09/Tampere-AdobeStock_157441764.jpg" 
-                title = "This is where I live."
-                address = "Pirkkamaa, Finland"
-                description = "No description yet hehe, kinda cold atm."
+                image = {props.meetupData.image}
+                title = {props.meetupData.title}
+                address = {props.meetupData.address}
+                description = {props.meetupData.description}
             />
         </Fragment>
     )
@@ -17,37 +18,40 @@ function MeetUpDetail() {
 
 
 export async function getStaticPaths() {
+    const client = await MongoClient.connect('mongodb+srv://admin:tgp-k6Mzh9Xj2FM@cluster0.nwzid.mongodb.net/meetup?retryWrites=true&w=majority'); 
+        
+    const db = client.db() ;
+    const meetupsCollection = db.collection('meetup');
+    const meetups = await meetupsCollection.find({}, {_id: 1}).toArray() ;
+    client.close() ;
     return {
         fallback: false ,
-        paths: [
-            {
-                params: {
-                    meetupId: 'm1',
-                },
-            },
-            {
-                params: {
-                    meetupId: 'm2',
-                },
-            },
-        ]
+        paths: meetups.map(meetup => ({params: {meetupId: meetup._id.toString()}})),
     }
 }
 
 export async function getStaticProps(context) {
 
     const meetupId =  context.params.meetupId;
+
+    const client = await MongoClient.connect('mongodb+srv://admin:tgp-k6Mzh9Xj2FM@cluster0.nwzid.mongodb.net/meetup?retryWrites=true&w=majority'); 
+        
+    const db = client.db() ;
+    const meetupsCollection = db.collection('meetup');
+    
+
+    const selectedMeetup = await meetupsCollection.findOne({_id: ObjectId(meetupId)});
     // meetupId because that is the identifire between the square brackets
     console.log(meetupId);
     return {
         props : {
             meetupData: {
-                img : "https://tripsteri.fi/wp-content/uploads/2020/09/Tampere-AdobeStock_157441764.jpg",
-                id : meetupId ,
-                title: 'This is where I live',
-                address: 'Pirkkamaa, Finland',
-                description: 'No description yet, kinda cold at the moment.'
-            }
+                id: selectedMeetup._id.toString() ,
+                title : selectedMeetup.title,
+                address: selectedMeetup.address,
+                image: selectedMeetup.image,
+                description: selectedMeetup.description,
+            },
         }
     }
 }
