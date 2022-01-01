@@ -1,11 +1,15 @@
 import { Fragment } from "react/cjs/react.production.min";
 import MeetUpDetails from "../../components/meetups/MeetupDetails";
 import {MongoClient, ObjectId} from 'mongodb';
+import Head from "next/dist/next-server/lib/head";
 
 
 function MeetUpDetail(props) {
     return (
         <Fragment>
+            <Head>
+                <title>{props.meetupData.title}</title>
+            </Head>
             <MeetUpDetails 
                 image = {props.meetupData.image}
                 title = {props.meetupData.title}
@@ -21,7 +25,7 @@ export async function getStaticPaths() {
     const client = await MongoClient.connect('mongodb+srv://admin:tgp-k6Mzh9Xj2FM@cluster0.nwzid.mongodb.net/meetup?retryWrites=true&w=majority'); 
         
     const db = client.db() ;
-    const meetupsCollection = db.collection('meetup');
+    const meetupsCollection = db.collection('meetups');
     const meetups = await meetupsCollection.find({}, {_id: 1}).toArray() ;
     client.close() ;
     return {

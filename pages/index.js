@@ -1,31 +1,25 @@
 import MeetupList from '../components/meetups/MeetupList';
 import { MongoClient } from 'mongodb';
+import Head from 'next/head';
+import { Fragment } from 'react';
 
 
 
-const DUMMY_MEETUPS = [
-    {
-        id: 'm1',
-        title: 'Tampere',
-        image: 'https://tripsteri.fi/wp-content/uploads/2020/09/Tampere-AdobeStock_157441764.jpg',
-        address: 'Pirkkamaa, Finland',
-        description: 'Place where I live.'
-    },
-    {
-        id: 'm2',
-        title: 'Etihad Stadium',
-        image: 'https://media.gettyimages.com/photos/general-view-inside-the-stadium-prior-to-the-carabao-cup-third-round-picture-id1276476537?s=2048x2048',
-        address: 'Manchester City, England',
-        description: 'My favourite Stadium.'
-    }
-]
 
 function HomePage(props) {
    
-
-    
     return (
+        <Fragment>
+            <Head>
+                <title>Holo.</title>
+                <meta 
+                    name = 'description'
+                    content='The world from different scopes'
+
+                />
+            </Head>
             <MeetupList meetups = {props.meetups} />
+        </Fragment>
     )
 }
 export async function getStaticProps() {
@@ -33,7 +27,7 @@ export async function getStaticProps() {
     const client = await MongoClient.connect('mongodb+srv://admin:tgp-k6Mzh9Xj2FM@cluster0.nwzid.mongodb.net/meetup?retryWrites=true&w=majority'); 
         
     const db = client.db() ;
-    const meetupsCollection = db.collection('meetup');
+    const meetupsCollection = db.collection('meetups');
 
     const meetups = await meetupsCollection.find().toArray() ;
 
